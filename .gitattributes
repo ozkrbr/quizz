@@ -1,0 +1,3 @@
+# Scripts e SQL executados em Linux: sempre LF (evita shebang/CRLF quebrado).
+*.sh  text eol=lf
+*.sql text eol=lf
