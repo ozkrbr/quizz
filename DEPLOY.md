@@ -1,15 +1,16 @@
 # Deploy do Quizz na AWS EC2
 
-A aplicação é distribuída como uma imagem Docker (`<usuario>/quizz`) e roda em
-conjunto com um PostgreSQL via `docker-compose.prod.yml`.
+A aplicação é distribuída como a imagem Docker pública
+[`ozkr/quizz`](https://hub.docker.com/r/ozkr/quizz) e roda em conjunto com um
+PostgreSQL via `docker-compose.prod.yml`.
 
 ## Imagem Docker
 
 Build e push (feitos a partir deste repositório):
 
 ```sh
-docker build -t <usuario>/quizz:latest .
-docker push <usuario>/quizz:latest
+docker build -t ozkr/quizz:latest .
+docker push ozkr/quizz:latest
 ```
 
 A imagem usa o output **standalone** do Next.js e expõe a porta `3000`.
@@ -44,8 +45,8 @@ Variável de ambiente obrigatória em runtime:
 ```sh
 git clone https://github.com/ozkrbr/quizz.git
 cd quizz
-export QUIZZ_IMAGE=<usuario>/quizz:latest
 export POSTGRES_PASSWORD='troque-esta-senha'
+# QUIZZ_IMAGE já tem default ozkr/quizz:latest; defina só para usar outra imagem.
 docker compose -f docker-compose.prod.yml up -d
 ```
 

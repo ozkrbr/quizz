@@ -23,7 +23,7 @@ services:
       retries: 10
 
   app:
-    image: ${QUIZZ_IMAGE:-quizz:latest}
+    image: ${QUIZZ_IMAGE:-ozkr/quizz:latest}
     restart: unless-stopped
     depends_on:
       db:
