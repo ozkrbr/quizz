@@ -1,5 +1,6 @@
-import { Participant, supabase } from '@/types/types'
-import { on } from 'events'
+import { Participant } from '@/types/types'
+import { fetchMyParticipant, getUserId, joinGame } from '@/lib/api'
+import { Brand } from '@/components/Brand'
 import { FormEvent, useEffect, useState } from 'react'
 
 export default function Lobby({
@@ -13,37 +14,14 @@ export default function Lobby({
 
   useEffect(() => {
     const fetchParticipant = async () => {
-      let userId: string | null = null
-
-      const { data: sessionData, error: sessionError } =
-        await supabase.auth.getSession()
-
-      if (sessionData.session) {
-        userId = sessionData.session?.user.id ?? null
-      } else {
-        const { data, error } = await supabase.auth.signInAnonymously()
-        if (error) console.error(error)
-        userId = data?.user?.id ?? null
-      }
-
-      if (!userId) {
-        return
-      }
-
-      const { data: participantData, error } = await supabase
-        .from('participants')
-        .select()
-        .eq('game_id', gameId)
-        .eq('user_id', userId)
-        .maybeSingle()
-
-      if (error) {
-        return alert(error.message)
-      }
-
-      if (participantData) {
-        setParticipant(participantData)
-        onRegisterCompleted(participantData)
+      try {
+        const participantData = await fetchMyParticipant(gameId, getUserId())
+        if (participantData) {
+          setParticipant(participantData)
+          onRegisterCompleted(participantData)
+        }
+      } catch (e: any) {
+        alert(e.message)
       }
     }
 
@@ -51,8 +29,12 @@ export default function Lobby({
   }, [gameId, onRegisterCompleted])
 
   return (
-    <div className="bg-green-500 flex justify-center items-center min-h-screen">
-      <div className="bg-black p-12">
+    <div className="flex min-h-screen flex-col items-center justify-center px-5 py-10">
+      <div className="mb-8 animate-fade-up">
+        <Brand size="lg" />
+      </div>
+
+      <div className="w-full max-w-md animate-pop-in">
         {!participant && (
           <Register
             gameId={gameId}
@@ -63,16 +45,7 @@ export default function Lobby({
           />
         )}
 
-        {participant && (
-          <div className="text-white max-w-md">
-            <h1 className="text-xl pb-4">Welcome {participant.nickname}！</h1>
-            <p>
-              You have been registered and your nickname should show up on the
-              admin screen. Please sit back and wait until the game master
-              starts the game.
-            </p>
-          </div>
-        )}
+        {participant && <Waiting nickname={participant.nickname} />}
       </div>
     </div>
   )
@@ -85,43 +58,74 @@ function Register({
   onRegisterCompleted: (player: Participant) => void
   gameId: string
 }) {
-  const onFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setSending(true)
-
-    if (!nickname) {
-      return
-    }
-    const { data: participant, error } = await supabase
-      .from('participants')
-      .insert({ nickname, game_id: gameId })
-      .select()
-      .single()
-
-    if (error) {
-      setSending(false)
-
-      return alert(error.message)
-    }
-
-    onRegisterCompleted(participant)
-  }
-
   const [nickname, setNickname] = useState('')
   const [sending, setSending] = useState(false)
 
+  const onFormSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!nickname.trim()) return
+    setSending(true)
+
+    try {
+      const participant = await joinGame(gameId, nickname.trim(), getUserId())
+      onRegisterCompleted(participant)
+    } catch (e: any) {
+      setSending(false)
+      return alert(e.message)
+    }
+  }
+
   return (
-    <form onSubmit={(e) => onFormSubmit(e)}>
-      <input
-        className="p-2 w-full border border-black text-black"
-        type="text"
-        onChange={(val) => setNickname(val.currentTarget.value)}
-        placeholder="Nickname"
-        maxLength={20}
-      />
-      <button disabled={sending} className="w-full py-2 bg-green-500 mt-4">
-        Join
-      </button>
-    </form>
+    <div className="glass rounded-3xl p-7 shadow-glow">
+      <h1 className="text-center font-display text-2xl font-extrabold text-white">
+        Entrar no jogo
+      </h1>
+      <p className="mt-1 text-center text-sm text-white/60">
+        Escolha um apelido para aparecer no placar
+      </p>
+
+      <form onSubmit={onFormSubmit} className="mt-6 space-y-4">
+        <input
+          className="w-full rounded-2xl border border-white/15 bg-white/95 px-5 py-4 text-center font-display text-xl font-bold text-slate-900 outline-none transition focus:ring-4 focus:ring-brand-500/50"
+          type="text"
+          autoFocus
+          value={nickname}
+          onChange={(val) => setNickname(val.currentTarget.value)}
+          placeholder="Seu apelido"
+          maxLength={20}
+        />
+        <button disabled={sending} className="btn-brand w-full text-lg">
+          {sending ? 'Entrando…' : 'Entrar'}
+        </button>
+      </form>
+    </div>
+  )
+}
+
+function Waiting({ nickname }: { nickname: string }) {
+  return (
+    <div className="glass rounded-3xl p-8 text-center shadow-glow">
+      <div className="relative mx-auto mb-6 flex h-20 w-20 items-center justify-center">
+        <span className="absolute inset-0 rounded-full bg-brand-500/40 animate-pulse-ring" />
+        <span className="absolute inset-0 rounded-full bg-brand-500/40 animate-pulse-ring animation-delay-500" />
+        <span className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-700 text-3xl font-extrabold text-white shadow-glow">
+          {nickname.charAt(0).toUpperCase()}
+        </span>
+      </div>
+
+      <h1 className="font-display text-2xl font-extrabold text-white">
+        Tudo certo, {nickname}!
+      </h1>
+      <p className="mx-auto mt-2 max-w-xs text-sm text-white/60">
+        Seu apelido já apareceu na tela do apresentador. Aguarde o início do
+        jogo.
+      </p>
+
+      <div className="mt-6 flex items-center justify-center gap-1.5">
+        <span className="h-2.5 w-2.5 animate-bounce rounded-full bg-white/70" />
+        <span className="h-2.5 w-2.5 animate-bounce rounded-full bg-white/70 animation-delay-150" />
+        <span className="h-2.5 w-2.5 animate-bounce rounded-full bg-white/70 animation-delay-300" />
+      </div>
+    </div>
   )
 }

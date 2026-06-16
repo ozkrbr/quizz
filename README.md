@@ -14,37 +14,37 @@ This project aims to provide similar functionality to Kahoot while being customi
 
 ##  Built With
 * [Nextjs](https://nextjs.org/)
-* [Supabase](https://supabase.com/)
+* [PostgreSQL](https://www.postgresql.org/) (via [node-postgres](https://node-postgres.com/))
 * [Tailwind CSS](https://tailwindcss.com/)
+
+> This fork replaced Supabase with plain PostgreSQL. Database access goes through
+> Next.js API routes (`src/app/api/**`) using `pg`, and the realtime game loop is
+> served over Server-Sent Events (`/api/games/:id/events`) backed by an in-memory
+> event bus (`src/lib/realtime.ts`) instead of Supabase Realtime. Player/host
+> identity is a UUID kept in `localStorage` instead of Supabase anonymous auth.
 
 
 ## Run Locally
 ```sh
-# Install dependencies 
-
+# 1. Install dependencies
 npm install
 
-# Start Supabase
+# 2. Start PostgreSQL (Docker). The schema and seed in ./db run automatically
+#    on first start.
+docker compose up -d
 
-supabase start
-
-# Start Next.js locally
-
+# 3. Start Next.js locally
 npm run dev
 
-# Access app in your web browser at `http://localhost:3000`. 
-
+# Access the app at http://localhost:3000
 ```
+
+The connection string lives in `.env.local` (`DATABASE_URL`). The schema is in
+`db/schema.sql` and the seed quizzes in `db/seed.sql`.
 
 Access the project root at / to join as a player.
 
 Access /host to join as a host.
-
-## Generate Types
-
-`supabase gen types typescript --local --schema public > src/types/supabase.ts`
-
-[read more on generating types](https://supabase.com/docs/guides/api/rest/generating-types)
 
 
 ## Contributing

@@ -1,5 +1,18 @@
-import { Participant, supabase } from '@/types/types'
+'use client'
+
+import { Participant } from '@/types/types'
+import { updateGame } from '@/lib/api'
+import { Brand } from '@/components/Brand'
 import { useQRCode } from 'next-qrcode'
+import { useEffect, useState } from 'react'
+
+const CHIP_COLORS = [
+  'from-fuchsia-500 to-brand-600',
+  'from-sky-500 to-indigo-600',
+  'from-amber-400 to-orange-600',
+  'from-emerald-400 to-teal-600',
+  'from-rose-500 to-pink-600',
+]
 
 export default function Lobby({
   participants: participants,
@@ -10,49 +23,114 @@ export default function Lobby({
 }) {
   const { Canvas } = useQRCode()
 
+  // Definido só no cliente para evitar mismatch de hidratação (SSR não tem window).
+  const [origin, setOrigin] = useState('')
+  useEffect(() => setOrigin(window.location.origin), [])
+  const joinUrl = `${origin}/game/${gameId}`
+
   const onClickStartGame = async () => {
-    const { data, error } = await supabase
-      .from('games')
-      .update({ phase: 'quiz' })
-      .eq('id', gameId)
-    if (error) {
-      return alert(error.message)
+    try {
+      await updateGame(gameId, { phase: 'quiz' })
+    } catch (e: any) {
+      return alert(e.message)
     }
   }
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="flex justify-between m-auto bg-black p-12">
-        <div className="w-96">
-          <div className="flex justify-start flex-wrap pb-4">
-            {participants.map((participant) => (
+    <div className="flex min-h-screen flex-col">
+      <header className="flex items-center justify-between px-6 py-5">
+        <Brand />
+        <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 font-display font-bold text-white">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="absolute inset-0 animate-ping rounded-full bg-emerald-400/70" />
+            <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+          </span>
+          {participants.length}{' '}
+          <span className="font-normal text-white/60">
+            {participants.length === 1 ? 'jogador' : 'jogadores'}
+          </span>
+        </div>
+      </header>
+
+      <div className="flex flex-grow flex-col gap-6 px-6 pb-6 lg:flex-row">
+        {/* Painel de entrada */}
+        <div className="glass flex flex-col items-center justify-center gap-5 rounded-3xl p-7 text-center shadow-glow lg:w-96 lg:shrink-0">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-brand-300">
+              Para entrar
+            </p>
+            <h2 className="mt-1 font-display text-2xl font-extrabold text-white">
+              Aponte a câmera
+            </h2>
+          </div>
+          <div className="flex h-[264px] w-[264px] items-center justify-center overflow-hidden rounded-2xl bg-white p-3 shadow-glow">
+            {origin ? (
+              <Canvas
+                text={joinUrl}
+                options={{
+                  errorCorrectionLevel: 'M',
+                  margin: 2,
+                  scale: 4,
+                  width: 240,
+                }}
+              />
+            ) : (
+              <div className="h-[240px] w-[240px] animate-pulse rounded-xl bg-slate-200" />
+            )}
+          </div>
+          <div className="w-full">
+            <p className="text-xs text-white/50">ou acesse</p>
+            <p className="mt-1 break-all rounded-xl bg-black/30 px-3 py-2 font-mono text-xs text-white/80">
+              {origin}/game/…
+            </p>
+          </div>
+        </div>
+
+        {/* Jogadores */}
+        <div className="glass flex flex-grow flex-col rounded-3xl p-7">
+          <h1 className="font-display text-3xl font-extrabold text-white">
+            Sala de espera
+          </h1>
+          <p className="mt-1 text-white/60">
+            Os jogadores aparecem aqui assim que entram.
+          </p>
+
+          <div className="mt-6 flex flex-grow content-start flex-wrap gap-3">
+            {participants.length === 0 && (
+              <div className="flex w-full flex-grow flex-col items-center justify-center gap-3 text-white/40">
+                <div className="flex gap-1.5">
+                  <span className="h-3 w-3 animate-bounce rounded-full bg-white/40" />
+                  <span className="h-3 w-3 animate-bounce rounded-full bg-white/40 animation-delay-150" />
+                  <span className="h-3 w-3 animate-bounce rounded-full bg-white/40 animation-delay-300" />
+                </div>
+                <p>Aguardando jogadores…</p>
+              </div>
+            )}
+            {participants.map((participant, i) => (
               <div
-                className="text-xl m-2 p-2 bg-green-500"
                 key={participant.id}
+                className={`flex animate-pop-in items-center gap-2 rounded-full bg-gradient-to-br ${
+                  CHIP_COLORS[i % CHIP_COLORS.length]
+                } py-2 pl-2 pr-4 font-display font-bold text-white shadow-answer`}
               >
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/25 text-sm">
+                  {participant.nickname.charAt(0).toUpperCase()}
+                </span>
                 {participant.nickname}
               </div>
             ))}
           </div>
 
           <button
-            className="mx-auto bg-white py-4 px-12 block text-black"
+            className="btn-brand mt-6 w-full text-lg disabled:opacity-40"
             onClick={onClickStartGame}
+            disabled={participants.length === 0}
           >
-            Start Game
+            Iniciar jogo
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
           </button>
-        </div>
-        <div className="pl-4">
-          {/* <img src="/qr.png" alt="QR code" /> */}
-          <Canvas
-            text={`https://kahoot-alternative.vercel.app/game/${gameId}`}
-            options={{
-              errorCorrectionLevel: 'M',
-              margin: 3,
-              scale: 4,
-              width: 400,
-            }}
-          />
         </div>
       </div>
     </div>

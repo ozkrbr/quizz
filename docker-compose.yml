@@ -1,0 +1,27 @@
+# Postgres puro para o kahoot-alternative (substitui o stack Supabase).
+# Sobe apenas o banco; a aplicação Next.js roda no host com `npm run dev`.
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: kahoot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kahoot
+      POSTGRES_PASSWORD: kahoot
+      POSTGRES_DB: kahoot
+    ports:
+      - '5432:5432'
+    volumes:
+      - kahoot-pgdata:/var/lib/postgresql/data
+      # Scripts em /docker-entrypoint-initdb.d rodam automaticamente na
+      # primeira inicialização (banco vazio), em ordem alfabética.
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U kahoot -d kahoot']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  kahoot-pgdata:

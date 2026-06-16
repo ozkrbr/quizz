@@ -2,11 +2,110 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
     padding: 0;
-    /* background-color: black;
-    background-image: url('/background.jpg');
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat; */
+    margin: 0;
+    color: #f8fafc;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Scrollbar discreta no tema escuro. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+@layer components {
+  /* Fundo de marca: gradiente animado + brilhos. Usado nas telas de jogo. */
+  .app-bg {
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(132, 61, 255, 0.35), transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, rgba(236, 72, 153, 0.28), transparent 55%),
+      radial-gradient(900px 600px at 50% 120%, rgba(56, 189, 248, 0.25), transparent 55%),
+      linear-gradient(180deg, #0b0620 0%, #140a2e 50%, #0b0620 100%);
+    background-attachment: fixed;
+  }
+
+  /* Card de vidro (glassmorphism). */
+  .glass {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  /* Texto com gradiente da marca. */
+  .text-gradient {
+    background: linear-gradient(90deg, #c4b5fd, #f0abfc, #93c5fd);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Botão primário da marca. */
+  .btn-brand {
+    @apply relative inline-flex items-center justify-center gap-2 rounded-2xl
+      px-7 py-3.5 font-bold text-white transition-all duration-150
+      active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60;
+    font-family: var(--font-outfit), system-ui, sans-serif;
+    background: linear-gradient(180deg, #9f75ff, #7916ff);
+    box-shadow:
+      0 8px 0 0 #5a03d5,
+      0 18px 40px -10px rgba(124, 58, 237, 0.7);
+  }
+  .btn-brand:hover:not(:disabled) {
+    filter: brightness(1.06);
+  }
+  .btn-brand:active:not(:disabled) {
+    box-shadow:
+      0 3px 0 0 #5a03d5,
+      0 10px 24px -10px rgba(124, 58, 237, 0.7);
+  }
+
+  /* Botão de alternativa com efeito 3D. */
+  .answer-btn {
+    @apply relative flex w-full items-center gap-4 rounded-2xl px-5 py-5 text-left
+      text-xl font-bold text-white transition-all duration-100
+      md:text-2xl;
+    font-family: var(--font-outfit), system-ui, sans-serif;
+    box-shadow: 0 6px 0 0 rgba(0, 0, 0, 0.28);
+  }
+  .answer-btn:not(:disabled):hover {
+    filter: brightness(1.07);
+    transform: translateY(-2px);
+  }
+  .answer-btn:not(:disabled):active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.28);
+  }
+}
+
+@layer utilities {
+  .animation-delay-150 {
+    animation-delay: 150ms;
+  }
+  .animation-delay-300 {
+    animation-delay: 300ms;
+  }
+  .animation-delay-500 {
+    animation-delay: 500ms;
+  }
 }

@@ -1,14 +1,12 @@
 'use client'
 
+import { Game, Participant, QuizSet } from '@/types/types'
 import {
-  Answer,
-  Choice,
-  Game,
-  Participant,
-  Question,
-  QuizSet,
-  supabase,
-} from '@/types/types'
+  fetchGame,
+  fetchParticipants,
+  fetchQuizSetForGame,
+  subscribeToGame,
+} from '@/lib/api'
 import { useEffect, useState } from 'react'
 import Lobby from './lobby'
 import Quiz from './quiz'
@@ -35,98 +33,50 @@ export default function Home({
 
   useEffect(() => {
     const getQuestions = async () => {
-      const { data: gameData, error: gameError } = await supabase
-        .from('games')
-        .select()
-        .eq('id', gameId)
-        .single()
-      if (gameError) {
-        console.error(gameError.message)
-        alert('Error getting game data')
-        return
-      }
-      const { data, error } = await supabase
-        .from('quiz_sets')
-        .select(`*, questions(*, choices(*))`)
-        .eq('id', gameData.quiz_set_id)
-        .order('order', {
-          ascending: true,
-          referencedTable: 'questions',
-        })
-        .single()
-      if (error) {
-        console.error(error.message)
+      try {
+        setQuizSet(await fetchQuizSetForGame(gameId))
+      } catch (e) {
+        console.error(e)
         getQuestions()
-        return
       }
-      setQuizSet(data)
     }
 
     const setGameListner = async () => {
-      const { data } = await supabase
-        .from('participants')
-        .select()
-        .eq('game_id', gameId)
-        .order('created_at')
-      if (data) setParticipants(data)
+      try {
+        setParticipants(await fetchParticipants(gameId))
 
-      supabase
-        .channel('game')
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'participants',
-            filter: `game_id=eq.${gameId}`,
-          },
-          (payload) => {
-            setParticipants((currentParticipants) => {
-              return [...currentParticipants, payload.new as Participant]
-            })
-          }
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'games',
-            filter: `id=eq.${gameId}`,
-          },
-          (payload) => {
-            // start the quiz game
-            const game = payload.new as Game
-            setCurrentQuestionSequence(game.current_question_sequence)
-            setCurrentScreen(game.phase as AdminScreens)
-          }
-        )
-        .subscribe()
-
-      const { data: gameData, error: gameError } = await supabase
-        .from('games')
-        .select()
-        .eq('id', gameId)
-        .single()
-
-      if (gameError) {
-        alert(gameError.message)
-        console.error(gameError)
-        return
+        const gameData = await fetchGame(gameId)
+        setCurrentQuestionSequence(gameData.current_question_sequence)
+        setCurrentScreen(gameData.phase as AdminScreens)
+      } catch (e: any) {
+        alert(e.message)
+        console.error(e)
       }
-
-      setCurrentQuestionSequence(gameData.current_question_sequence)
-      setCurrentScreen(gameData.phase as AdminScreens)
     }
+
+    const unsubscribe = subscribeToGame(gameId, (event) => {
+      if (event.type === 'participant') {
+        const participant = event.payload as Participant
+        setParticipants((current) => {
+          if (current.some((p) => p.id === participant.id)) return current
+          return [...current, participant]
+        })
+      } else if (event.type === 'game') {
+        const game = event.payload as Game
+        setCurrentQuestionSequence(game.current_question_sequence)
+        setCurrentScreen(game.phase as AdminScreens)
+      }
+    })
 
     getQuestions()
     setGameListner()
+    return unsubscribe
   }, [gameId])
 
   const [currentQuestionSequence, setCurrentQuestionSequence] = useState(0)
 
   return (
-    <main className="bg-green-600 min-h-screen">
+    <main className="min-h-screen">
       {currentScreen == AdminScreens.lobby && (
         <Lobby participants={participants} gameId={gameId}></Lobby>
       )}

@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.gitignore
+npm-debug.log*
+README.md
+DEPLOY.md
+.env
+.env.*
+Dockerfile
+.dockerignore
+docker-compose*.yml
+.claude
+supabase

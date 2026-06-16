@@ -1,8 +1,8 @@
 'use client'
 
-import React, { FormEvent, useEffect, useRef, useState } from 'react'
-import { RealtimeChannel } from '@supabase/supabase-js'
-import { Choice, Game, Participant, Question, supabase } from '@/types/types'
+import React, { useEffect, useRef, useState } from 'react'
+import { Game, Participant, Question } from '@/types/types'
+import { fetchGame, fetchQuizSetForGame, subscribeToGame } from '@/lib/api'
 import Lobby from './lobby'
 import Quiz from './quiz'
 
@@ -36,11 +36,7 @@ export default function Home({
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false)
 
   const getGame = async () => {
-    const { data: game } = await supabase
-      .from('games')
-      .select()
-      .eq('id', gameId)
-      .single()
+    const game = await fetchGame(gameId).catch(() => null)
     if (!game) return
     setCurrentScreen(game.phase as Screens)
     if (game.phase == Screens.quiz) {
@@ -48,60 +44,39 @@ export default function Home({
       setIsAnswerRevealed(game.is_answer_revealed)
     }
 
-    getQuestions(game.quiz_set_id)
+    getQuestions()
   }
 
-  const getQuestions = async (quizSetId: string) => {
-    const { data, error } = await supabase
-      .from('questions')
-      .select(`*, choices(*)`)
-      .eq('quiz_set_id', quizSetId)
-      .order('order', { ascending: true })
-    if (error) {
-      getQuestions(quizSetId)
-      return
+  const getQuestions = async () => {
+    try {
+      const quizSet = await fetchQuizSetForGame(gameId)
+      setQuestions(quizSet.questions)
+    } catch (e) {
+      getQuestions()
     }
-    setQuestions(data)
   }
 
   useEffect(() => {
-    const setGameListner = (): RealtimeChannel => {
-      return supabase
-        .channel('game_participant')
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'games',
-            filter: `id=eq.${gameId}`,
-          },
-          (payload) => {
-            if (!stateRef.current) return
+    const unsubscribe = subscribeToGame(gameId, (event) => {
+      if (event.type !== 'game') return
+      if (!stateRef.current) return
 
-            // start the quiz game
-            const game = payload.new as Game
+      // start the quiz game
+      const game = event.payload as Game
 
-            if (game.phase == 'result') {
-              setCurrentScreen(Screens.results)
-            } else {
-              setCurrentScreen(Screens.quiz)
-              setCurrentQuestionSequence(game.current_question_sequence)
-              setIsAnswerRevealed(game.is_answer_revealed)
-            }
-          }
-        )
-        .subscribe()
-    }
-
-    const gameChannel = setGameListner()
-    return () => {
-      supabase.removeChannel(gameChannel)
-    }
+      if (game.phase == 'result') {
+        setCurrentScreen(Screens.results)
+      } else {
+        setCurrentScreen(Screens.quiz)
+        setCurrentQuestionSequence(game.current_question_sequence)
+        setIsAnswerRevealed(game.is_answer_revealed)
+      }
+    })
+    return unsubscribe
   }, [gameId])
 
   return (
-    <main className="bg-green-500 min-h-screen">
+    <main className="min-h-screen">
       {currentScreen == Screens.lobby && (
         <Lobby
           onRegisterCompleted={onRegisterCompleted}
@@ -113,6 +88,7 @@ export default function Home({
           question={questions![currentQuestionSequence]}
           questionCount={questions!.length}
           participantId={participant!.id}
+          gameId={gameId}
           isAnswerRevealed={isAnswerRevealed}
         ></Quiz>
       )}
@@ -125,10 +101,17 @@ export default function Home({
 
 function Results({ participant }: { participant: Participant }) {
   return (
-    <div className="flex justify-center items-center min-h-screen text-center">
-      <div className="p-8 bg-black text-white rounded-lg">
-        <h2 className="text-2xl pb-4">Hey {participant.nickname}！</h2>
-        <p>Thanks for playing 🎉</p>
+    <div className="flex min-h-screen items-center justify-center px-5 text-center">
+      <div className="glass animate-pop-in rounded-3xl p-10 shadow-glow">
+        <div className="mx-auto mb-5 flex h-20 w-20 animate-float items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-700 text-4xl shadow-glow">
+          🎉
+        </div>
+        <h2 className="font-display text-3xl font-extrabold text-white">
+          Mandou bem, {participant.nickname}!
+        </h2>
+        <p className="mt-2 text-white/60">
+          Obrigado por jogar. Confira o placar na tela do apresentador.
+        </p>
       </div>
     </div>
   )

@@ -1,0 +1,39 @@
+# Stack de produção para rodar em uma instância EC2:
+#   - app: a imagem do Quizz (puxada do Docker Hub)
+#   - db:  PostgreSQL com schema + seed aplicados na primeira subida
+#
+# Uso na EC2:
+#   QUIZZ_IMAGE=<seu-usuario>/quizz:latest docker compose -f docker-compose.prod.yml up -d
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kahoot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kahoot}
+      POSTGRES_DB: kahoot
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U kahoot -d kahoot']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    image: ${QUIZZ_IMAGE:-quizz:latest}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://kahoot:${POSTGRES_PASSWORD:-kahoot}@db:5432/kahoot
+      NODE_ENV: production
+    ports:
+      # HTTP da instância (porta 80) -> app (3000)
+      - '80:3000'
+
+volumes:
+  pgdata:
