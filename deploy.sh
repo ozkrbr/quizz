@@ -87,9 +87,17 @@ else
   log "Schema já existe — mantendo dados atuais."
 fi
 
-# Migrações idempotentes (novas colunas etc.) — rodam sempre, sem afetar dados.
+# Migrações idempotentes — rodam SEMPRE, sem afetar dados existentes.
+# Embutidas aqui (não dependem de baixar outro arquivo) para o script ser
+# autossuficiente. Adicione novas colunas/ajustes abaixo conforme necessário.
 log "Aplicando migrações..."
-curl -fsSL "$RAW/db/migrate.sql" | docker exec -i "$PG_CONTAINER" psql -v ON_ERROR_STOP=1 -U "$PG_SUPERUSER" -d "$QUIZZ_DB"
+docker exec -i "$PG_CONTAINER" psql -v ON_ERROR_STOP=1 -U "$PG_SUPERUSER" -d "$QUIZZ_DB" <<SQL
+alter table public.quiz_sets add column if not exists answer_time smallint not null default 30;
+alter table public.quiz_sets add column if not exists auto_advance boolean not null default false;
+-- Garante que a role do app possa ler/gravar (cobre colunas recém-adicionadas).
+grant select, insert, update, delete on all tables in schema public to ${QUIZZ_USER};
+grant usage, select on all sequences in schema public to ${QUIZZ_USER};
+SQL
 
 # ----------------------------------------------------------------------------
 # 4) Rede compartilhada entre app e Postgres
