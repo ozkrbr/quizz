@@ -100,8 +100,35 @@ export default function Home({
 }
 
 function Results({ participant }: { participant: Participant }) {
+  const [left, setLeft] = useState(false)
+
+  const onLeave = () => {
+    setLeft(true)
+    // Tenta fechar a aba (funciona se foi aberta por script); senão, a tela de
+    // despedida abaixo orienta o jogador a fechar manualmente.
+    window.close()
+  }
+
+  if (left) {
+    return (
+      <div className="flex min-h-[100dvh] items-center justify-center px-5 text-center">
+        <div className="glass animate-pop-in rounded-3xl p-10 shadow-glow">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-white/10 text-3xl">
+            👋
+          </div>
+          <h2 className="font-display text-2xl font-extrabold text-white">
+            Até a próxima!
+          </h2>
+          <p className="mt-2 text-white/60">
+            Você saiu da partida. Pode fechar esta aba com segurança.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center px-5 text-center">
+    <div className="flex min-h-[100dvh] items-center justify-center px-5 text-center">
       <div className="glass animate-pop-in rounded-3xl p-10 shadow-glow">
         <div className="mx-auto mb-5 flex h-20 w-20 animate-float items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-700 text-4xl shadow-glow">
           🎉
@@ -112,6 +139,9 @@ function Results({ participant }: { participant: Participant }) {
         <p className="mt-2 text-white/60">
           Obrigado por jogar. Confira o placar na tela do apresentador.
         </p>
+        <button onClick={onLeave} className="btn-brand mt-6 w-full text-base">
+          Encerrar e sair
+        </button>
       </div>
     </div>
   )

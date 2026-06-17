@@ -108,6 +108,22 @@ export async function deleteQuizSet(id: string): Promise<void> {
 }
 
 // ---- Games ----
+
+// Resumo de partida para a listagem "Partidas anteriores".
+export type GameSummary = {
+  id: string
+  created_at: string
+  phase: string
+  quiz_set_id: string
+  quiz_name: string
+  participant_count: number
+  winner_nickname: string | null
+}
+
+export async function fetchGames(): Promise<GameSummary[]> {
+  return json(await fetch('/api/games'))
+}
+
 export async function createGame(
   quizSetId: string,
   hostUserId: string

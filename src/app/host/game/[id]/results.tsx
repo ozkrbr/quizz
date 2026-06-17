@@ -1,6 +1,7 @@
 import { GameResult, Participant, QuizSet } from '@/types/types'
 import { fetchResults } from '@/lib/api'
 import { Brand } from '@/components/Brand'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import Confetti from 'react-confetti'
 import useWindowSize from 'react-use/lib/useWindowSize'
@@ -46,11 +47,24 @@ export default function Results({
     <div className="relative min-h-screen overflow-hidden">
       <Confetti width={width} height={height} recycle numberOfPieces={180} />
 
-      <header className="flex items-center justify-between px-6 py-5">
-        <Brand />
-        <span className="rounded-full bg-white/10 px-4 py-2 font-display text-sm font-bold text-white/80">
-          {quizSet.name}
-        </span>
+      <header className="flex items-center justify-between gap-3 px-6 py-5">
+        <Link href="/host/dashboard" title="Voltar ao menu">
+          <Brand />
+        </Link>
+        <div className="flex items-center gap-3">
+          <span className="hidden rounded-full bg-white/10 px-4 py-2 font-display text-sm font-bold text-white/80 sm:block">
+            {quizSet.name}
+          </span>
+          <Link
+            href="/host/dashboard"
+            className="flex items-center gap-1.5 rounded-xl bg-white/10 px-4 py-2 font-display text-sm font-bold text-white transition hover:bg-white/20"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m15 19-7-7 7-7" />
+            </svg>
+            Voltar ao menu
+          </Link>
+        </div>
       </header>
 
       <div className="mx-auto max-w-3xl px-5 pb-12">
