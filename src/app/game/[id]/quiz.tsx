@@ -2,7 +2,7 @@ import { QUESTION_ANSWER_TIME, TIME_TIL_CHOICE_REVEAL } from '@/constants'
 import { Choice, Question } from '@/types/types'
 import { submitAnswer } from '@/lib/api'
 import { AnswerShape, answerColor } from '@/components/AnswerShape'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { ColorFormat, CountdownCircleTimer } from 'react-countdown-circle-timer'
 
 export default function Quiz({
@@ -24,10 +24,21 @@ export default function Quiz({
 
   const [questionStartTime, setQuestionStartTime] = useState(Date.now())
 
-  useEffect(() => {
+  // Reset ao trocar de pergunta — feito DURANTE o render (não em useEffect) para
+  // não existir um render intermediário com a escolha da pergunta anterior já
+  // combinada com a nova pergunta (causava answerColor(-1) e quebrava a tela).
+  const [renderedQid, setRenderedQid] = useState(question.id)
+  if (renderedQid !== question.id) {
+    setRenderedQid(question.id)
     setChosenChoice(null)
     setHasShownChoices(false)
-  }, [question.id])
+    setQuestionStartTime(Date.now())
+  }
+
+  // Índice da alternativa escolhida na pergunta ATUAL (-1 se não pertencer).
+  const chosenIndex = chosenChoice
+    ? question.choices.findIndex((c) => c.id === chosenChoice.id)
+    : -1
 
   const answer = async (choice: Choice) => {
     setChosenChoice(choice)
@@ -67,16 +78,13 @@ export default function Quiz({
       </div>
 
       {/* Esperando os outros */}
-      {!isAnswerRevealed && chosenChoice && (
+      {!isAnswerRevealed && chosenChoice && chosenIndex >= 0 && (
         <div className="flex flex-grow flex-col items-center justify-center gap-4 px-5">
           <div
             className="flex h-24 w-24 animate-pop-in items-center justify-center rounded-3xl text-white shadow-answer"
-            style={{ backgroundColor: answerColor(question.choices.indexOf(chosenChoice)).hex }}
+            style={{ backgroundColor: answerColor(chosenIndex).hex }}
           >
-            <AnswerShape
-              index={question.choices.indexOf(chosenChoice)}
-              className="h-10 w-10"
-            />
+            <AnswerShape index={chosenIndex} className="h-10 w-10" />
           </div>
           <p className="font-display text-xl font-bold text-white/80">
             Resposta enviada!

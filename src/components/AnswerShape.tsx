@@ -9,7 +9,9 @@ export const ANSWER_COLORS = [
 ] as const
 
 export function answerColor(index: number) {
-  return ANSWER_COLORS[index % ANSWER_COLORS.length]
+  // Normaliza índices negativos/fora do intervalo para nunca retornar undefined.
+  const n = ANSWER_COLORS.length
+  return ANSWER_COLORS[(((index % n) + n) % n)]
 }
 
 export function AnswerShape({
@@ -20,7 +22,7 @@ export function AnswerShape({
   className?: string
 }) {
   const fill = 'white'
-  switch (index % 4) {
+  switch (((index % 4) + 4) % 4) {
     case 0: // triângulo
       return (
         <svg viewBox="0 0 24 24" className={className} aria-hidden>
