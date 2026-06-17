@@ -43,6 +43,21 @@ export async function POST(
     )
   }
 
+  // Apelido único na partida (case-insensitive), a menos que seja o reingresso
+  // do mesmo usuário.
+  const taken = await queryOne(
+    `select 1 from participants
+      where game_id = $1 and lower(nickname) = lower($2) and user_id <> $3
+      limit 1`,
+    [params.id, nickname.trim(), user_id]
+  )
+  if (taken) {
+    return NextResponse.json(
+      { error: 'Esse apelido já está em uso nesta partida' },
+      { status: 409 }
+    )
+  }
+
   let participant
   try {
     participant = await queryOne(

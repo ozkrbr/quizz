@@ -6,6 +6,13 @@ export const dynamic = 'force-dynamic'
 // Lista as partidas (mais recentes primeiro) com nome do quiz, nº de jogadores
 // e o placar do vencedor — usado em "Partidas anteriores".
 export async function GET() {
+  // Housekeeping: remove partidas abandonadas (sem jogadores) com mais de 1 dia.
+  await query(
+    `delete from games g
+      where g.created_at < now() - interval '1 day'
+        and not exists (select 1 from participants p where p.game_id = g.id)`
+  )
+
   const games = await query(
     `select g.id,
             g.created_at,

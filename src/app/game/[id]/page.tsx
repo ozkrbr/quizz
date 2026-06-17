@@ -34,6 +34,7 @@ export default function Home({
 
   const [currentQuestionSequence, setCurrentQuestionSequence] = useState(0)
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false)
+  const [removed, setRemoved] = useState(false)
 
   const getGame = async () => {
     const game = await fetchGame(gameId).catch(() => null)
@@ -58,6 +59,15 @@ export default function Home({
 
   useEffect(() => {
     const unsubscribe = subscribeToGame(gameId, (event) => {
+      if (event.type === 'kick') {
+        if (
+          stateRef.current &&
+          event.payload.participantId === stateRef.current.id
+        ) {
+          setRemoved(true)
+        }
+        return
+      }
       if (event.type !== 'game') return
       if (!stateRef.current) return
 
@@ -74,6 +84,26 @@ export default function Home({
     })
     return unsubscribe
   }, [gameId])
+
+  if (removed) {
+    return (
+      <main className="min-h-[100dvh]">
+        <div className="flex min-h-[100dvh] items-center justify-center px-5 text-center">
+          <div className="glass animate-pop-in rounded-3xl p-10 shadow-glow">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-white/10 text-3xl">
+              👋
+            </div>
+            <h2 className="font-display text-2xl font-extrabold text-white">
+              Você saiu da partida
+            </h2>
+            <p className="mt-2 text-white/60">
+              O apresentador removeu você desta partida. Pode fechar esta aba.
+            </p>
+          </div>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="min-h-[100dvh]">

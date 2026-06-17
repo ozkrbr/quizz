@@ -1,7 +1,7 @@
 'use client'
 
 import { Participant } from '@/types/types'
-import { updateGame } from '@/lib/api'
+import { kickParticipant, updateGame } from '@/lib/api'
 import { Brand } from '@/components/Brand'
 import { useQRCode } from 'next-qrcode'
 import { useEffect, useState } from 'react'
@@ -33,6 +33,14 @@ export default function Lobby({
       await updateGame(gameId, { phase: 'quiz' })
     } catch (e: any) {
       return alert(e.message)
+    }
+  }
+
+  const onKick = async (id: string) => {
+    try {
+      await kickParticipant(id)
+    } catch (e: any) {
+      alert(e.message)
     }
   }
 
@@ -109,14 +117,23 @@ export default function Lobby({
             {participants.map((participant, i) => (
               <div
                 key={participant.id}
-                className={`flex animate-pop-in items-center gap-2 rounded-full bg-gradient-to-br ${
+                className={`group flex animate-pop-in items-center gap-2 rounded-full bg-gradient-to-br ${
                   CHIP_COLORS[i % CHIP_COLORS.length]
-                } py-2 pl-2 pr-4 font-display font-bold text-white shadow-answer`}
+                } py-2 pl-2 pr-2 font-display font-bold text-white shadow-answer`}
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/25 text-sm">
                   {participant.nickname.charAt(0).toUpperCase()}
                 </span>
-                {participant.nickname}
+                <span className="pr-1">{participant.nickname}</span>
+                <button
+                  onClick={() => onKick(participant.id)}
+                  title={`Remover ${participant.nickname}`}
+                  className="flex h-6 w-6 items-center justify-center rounded-full bg-black/20 text-white/70 transition hover:bg-black/40 hover:text-white"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} className="h-3.5 w-3.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
             ))}
           </div>

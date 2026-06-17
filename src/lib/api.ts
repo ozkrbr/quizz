@@ -16,6 +16,7 @@ export type GameEvent =
   | { type: 'game'; payload: Game }
   | { type: 'participant'; payload: Participant }
   | { type: 'answer'; payload: Answer }
+  | { type: 'kick'; payload: { participantId: string } }
 
 /** Gera um UUID v4. Usa crypto.randomUUID quando disponível (contexto seguro:
  *  HTTPS ou localhost) e cai para getRandomValues / Math.random caso contrário.
@@ -141,6 +142,10 @@ export async function fetchGame(gameId: string): Promise<Game> {
   return json(await fetch(`/api/games/${gameId}`))
 }
 
+export async function deleteGame(gameId: string): Promise<void> {
+  await json(await fetch(`/api/games/${gameId}`, { method: 'DELETE' }))
+}
+
 export async function updateGame(
   gameId: string,
   patch: Partial<
@@ -174,6 +179,10 @@ export async function fetchMyParticipant(
   return json(
     await fetch(`/api/games/${gameId}/participants?userId=${userId}`)
   )
+}
+
+export async function kickParticipant(participantId: string): Promise<void> {
+  await json(await fetch(`/api/participants/${participantId}`, { method: 'DELETE' }))
 }
 
 export async function joinGame(

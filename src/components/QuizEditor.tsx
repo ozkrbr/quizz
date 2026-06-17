@@ -92,6 +92,24 @@ export default function QuizEditor({ initial }: { initial?: QuizSet }) {
         i === qi ? { ...q, choices: q.choices.filter((_, j) => j !== ci) } : q
       )
     )
+  const moveQuestion = (qi: number, dir: -1 | 1) =>
+    setQuestions((qs) => {
+      const ni = qi + dir
+      if (ni < 0 || ni >= qs.length) return qs
+      const copy = [...qs]
+      ;[copy[qi], copy[ni]] = [copy[ni], copy[qi]]
+      return copy
+    })
+  const duplicateQuestion = (qi: number) =>
+    setQuestions((qs) => {
+      const clone: QuestionForm = {
+        ...qs[qi],
+        choices: qs[qi].choices.map((c) => ({ ...c })),
+      }
+      const copy = [...qs]
+      copy.splice(qi + 1, 0, clone)
+      return copy
+    })
 
   const onSave = async () => {
     setError(null)
@@ -171,14 +189,39 @@ export default function QuizEditor({ initial }: { initial?: QuizSet }) {
               <span className="flex h-8 items-center rounded-full bg-brand-500/30 px-3 font-display text-sm font-bold text-brand-100">
                 Pergunta {qi + 1}
               </span>
-              <button
-                onClick={() => removeQuestion(qi)}
-                disabled={questions.length === 1}
-                className="rounded-lg p-2 text-white/50 transition hover:bg-red-500/20 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-30"
-                title="Remover pergunta"
-              >
-                <TrashIcon />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => moveQuestion(qi, -1)}
+                  disabled={qi === 0}
+                  className="rounded-lg p-2 text-white/50 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-20"
+                  title="Mover para cima"
+                >
+                  <ArrowIcon up />
+                </button>
+                <button
+                  onClick={() => moveQuestion(qi, 1)}
+                  disabled={qi === questions.length - 1}
+                  className="rounded-lg p-2 text-white/50 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-20"
+                  title="Mover para baixo"
+                >
+                  <ArrowIcon />
+                </button>
+                <button
+                  onClick={() => duplicateQuestion(qi)}
+                  className="rounded-lg p-2 text-white/50 transition hover:bg-white/10 hover:text-white"
+                  title="Duplicar pergunta"
+                >
+                  <CopyIcon />
+                </button>
+                <button
+                  onClick={() => removeQuestion(qi)}
+                  disabled={questions.length === 1}
+                  className="rounded-lg p-2 text-white/50 transition hover:bg-red-500/20 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-30"
+                  title="Remover pergunta"
+                >
+                  <TrashIcon />
+                </button>
+              </div>
             </div>
 
             <textarea
@@ -195,6 +238,21 @@ export default function QuizEditor({ initial }: { initial?: QuizSet }) {
               placeholder="URL de imagem (opcional)"
               className="mt-2 w-full rounded-xl border border-white/10 bg-black/20 px-4 py-2 text-sm text-white/80 outline-none transition focus:ring-2 focus:ring-brand-500/40"
             />
+
+            {q.image_url.trim() !== '' && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={q.image_url}
+                alt="Pré-visualização da imagem da pergunta"
+                className="mt-2 max-h-40 rounded-xl border border-white/10 object-contain"
+                onError={(e) => {
+                  ;(e.currentTarget as HTMLImageElement).style.display = 'none'
+                }}
+                onLoad={(e) => {
+                  ;(e.currentTarget as HTMLImageElement).style.display = ''
+                }}
+              />
+            )}
 
             {/* Alternativas */}
             <div className="mt-4 space-y-2">
@@ -308,6 +366,27 @@ function PlusIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="h-5 w-5">
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 5v14M5 12h14" />
+    </svg>
+  )
+}
+function ArrowIcon({ up = false }: { up?: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.5}
+      className={`h-5 w-5 ${up ? '' : 'rotate-180'}`}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="m5 15 7-7 7 7" />
+    </svg>
+  )
+}
+function CopyIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5">
+      <rect x="9" y="9" width="11" height="11" rx="2" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 15V5a2 2 0 0 1 2-2h10" />
     </svg>
   )
 }

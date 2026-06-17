@@ -26,6 +26,10 @@ export default function Quiz({
 
   answerStateRef.current = answers
 
+  // Quem ainda não respondeu a pergunta atual.
+  const answeredIds = new Set(answers.map((a) => a.participant_id))
+  const notAnswered = participants.filter((p) => !answeredIds.has(p.id))
+
   const getNextQuestion = async () => {
     const updateData =
       questionCount == question.order + 1
@@ -102,33 +106,56 @@ export default function Quiz({
       {/* Centro: timer + contador, ou gráfico de respostas */}
       <div className="flex flex-grow items-center justify-center px-6 py-6">
         {hasShownChoices && !isAnswerRevealed && (
-          <div className="flex w-full max-w-3xl items-center justify-between">
-            <CountdownCircleTimer
-              onComplete={() => {
-                onTimeUp()
-              }}
-              isPlaying
-              duration={20}
-              colors={['#26890c', '#d89e00', '#e21b3c', '#e21b3c']}
-              colorsTime={[20, 8, 3, 0]}
-              trailColor={'rgba(255,255,255,0.12)' as ColorFormat}
-              size={130}
-            >
-              {({ remainingTime }) => (
-                <span className="font-display text-5xl font-extrabold text-white">
-                  {remainingTime}
-                </span>
-              )}
-            </CountdownCircleTimer>
+          <div className="flex w-full max-w-3xl flex-col items-center gap-6">
+            <div className="flex w-full items-center justify-between">
+              <CountdownCircleTimer
+                onComplete={() => {
+                  onTimeUp()
+                }}
+                isPlaying
+                duration={20}
+                colors={['#26890c', '#d89e00', '#e21b3c', '#e21b3c']}
+                colorsTime={[20, 8, 3, 0]}
+                trailColor={'rgba(255,255,255,0.12)' as ColorFormat}
+                size={130}
+              >
+                {({ remainingTime }) => (
+                  <span className="font-display text-5xl font-extrabold text-white">
+                    {remainingTime}
+                  </span>
+                )}
+              </CountdownCircleTimer>
 
-            <div className="text-center">
-              <div className="font-display text-7xl font-extrabold text-white">
-                {answers.length}
-              </div>
-              <div className="mt-1 font-display text-lg font-bold uppercase tracking-widest text-white/50">
-                respostas
+              <div className="text-center">
+                <div className="font-display text-7xl font-extrabold text-white">
+                  {answers.length}
+                  <span className="text-3xl text-white/40">
+                    /{participants.length}
+                  </span>
+                </div>
+                <div className="mt-1 font-display text-lg font-bold uppercase tracking-widest text-white/50">
+                  respostas
+                </div>
               </div>
             </div>
+
+            {notAnswered.length > 0 && (
+              <div className="w-full">
+                <p className="mb-2 text-center font-display text-sm font-bold uppercase tracking-widest text-white/40">
+                  Faltam responder ({notAnswered.length})
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {notAnswered.map((p) => (
+                    <span
+                      key={p.id}
+                      className="rounded-full bg-white/10 px-3 py-1 text-sm font-semibold text-white/70"
+                    >
+                      {p.nickname}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

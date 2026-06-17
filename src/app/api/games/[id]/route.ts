@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { queryOne } from '@/lib/db'
+import { query, queryOne } from '@/lib/db'
 import { publish } from '@/lib/realtime'
 
 export const dynamic = 'force-dynamic'
@@ -58,4 +58,18 @@ export async function PATCH(
 
   publish(params.id, { type: 'game', payload: game })
   return NextResponse.json(game)
+}
+
+// Exclui uma partida (participantes e respostas caem em cascata pela FK).
+export async function DELETE(
+  _req: Request,
+  { params }: { params: { id: string } }
+) {
+  const rows = await query(`delete from games where id = $1 returning id`, [
+    params.id,
+  ])
+  if (rows.length === 0) {
+    return NextResponse.json({ error: 'Partida não encontrada' }, { status: 404 })
+  }
+  return NextResponse.json({ ok: true })
 }

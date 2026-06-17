@@ -1,11 +1,32 @@
 'use client'
 
-import { fetchQuizSetForGame, fetchResults } from '@/lib/api'
+import {
+  createGame,
+  fetchQuizSetForGame,
+  fetchResults,
+  getUserId,
+} from '@/lib/api'
 import { GameResult } from '@/types/types'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 const MEDAL = ['🥇', '🥈', '🥉']
+
+function exportCsv(quizName: string, results: GameResult[]) {
+  const header = 'Posicao,Apelido,Pontos'
+  const rows = results.map(
+    (r, i) =>
+      `${i + 1},"${(r.nickname ?? '').replace(/"/g, '""')}",${r.total_score}`
+  )
+  const csv = '﻿' + [header, ...rows].join('\r\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `placar-${quizName.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
 export default function PlacarPartida({
   params: { id },
@@ -14,22 +35,36 @@ export default function PlacarPartida({
 }) {
   const [results, setResults] = useState<GameResult[]>([])
   const [quizName, setQuizName] = useState('')
+  const [quizSetId, setQuizSetId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [starting, setStarting] = useState(false)
 
   useEffect(() => {
     Promise.all([
       fetchResults(id),
-      fetchQuizSetForGame(id)
-        .then((q) => q.name)
-        .catch(() => ''),
+      fetchQuizSetForGame(id).catch(() => null),
     ])
-      .then(([res, name]) => {
+      .then(([res, quiz]) => {
         setResults(res)
-        setQuizName(name)
+        setQuizName(quiz?.name ?? '')
+        setQuizSetId(quiz?.id ?? null)
       })
       .catch(() => alert('Não foi possível carregar o placar'))
       .finally(() => setLoading(false))
   }, [id])
+
+  const playAgain = async () => {
+    if (!quizSetId) return
+    setStarting(true)
+    try {
+      const game = await createGame(quizSetId, getUserId())
+      window.open(`/host/game/${game.id}`, '_blank', 'noopener,noreferrer')
+    } catch (e: any) {
+      alert(e.message)
+    } finally {
+      setStarting(false)
+    }
+  }
 
   return (
     <div className="animate-fade-up">
@@ -43,11 +78,35 @@ export default function PlacarPartida({
         Partidas anteriores
       </Link>
 
-      <div className="mb-6">
-        <h1 className="font-display text-3xl font-extrabold text-gradient">
-          Placar final
-        </h1>
-        {quizName && <p className="mt-1 text-white/60">{quizName}</p>}
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl font-extrabold text-gradient">
+            Placar final
+          </h1>
+          {quizName && <p className="mt-1 text-white/60">{quizName}</p>}
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => exportCsv(quizName || 'quizz', results)}
+            disabled={results.length === 0}
+            className="flex items-center gap-1.5 rounded-xl bg-white/10 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/20 disabled:opacity-40"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+            </svg>
+            Exportar CSV
+          </button>
+          <button
+            onClick={playAgain}
+            disabled={!quizSetId || starting}
+            className="btn-brand py-2 text-sm"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+            {starting ? 'Iniciando…' : 'Jogar de novo'}
+          </button>
+        </div>
       </div>
 
       {loading && (

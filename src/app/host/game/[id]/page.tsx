@@ -65,6 +65,11 @@ export default function Home({
         const game = event.payload as Game
         setCurrentQuestionSequence(game.current_question_sequence)
         setCurrentScreen(game.phase as AdminScreens)
+      } else if (event.type === 'kick') {
+        const { participantId } = event.payload
+        setParticipants((current) =>
+          current.filter((p) => p.id !== participantId)
+        )
       }
     })
 

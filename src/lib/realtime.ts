@@ -13,6 +13,7 @@ export type GameEvent =
   | { type: 'game'; payload: any }
   | { type: 'participant'; payload: any }
   | { type: 'answer'; payload: any }
+  | { type: 'kick'; payload: { participantId: string } }
 
 const globalForBus = globalThis as unknown as { gameBus?: EventEmitter }
 
