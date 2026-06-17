@@ -76,7 +76,7 @@ export default function Home({
   }, [gameId])
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-[100dvh]">
       {currentScreen == Screens.lobby && (
         <Lobby
           onRegisterCompleted={onRegisterCompleted}

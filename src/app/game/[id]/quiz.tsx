@@ -69,10 +69,10 @@ export default function Quiz({
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col">
+    <div className="relative flex h-[100dvh] flex-col overflow-hidden">
       {/* Pergunta */}
-      <div className="px-5 pt-8 text-center">
-        <h2 className="mx-auto inline-block max-w-3xl rounded-2xl bg-white px-6 py-5 font-display text-xl font-extrabold leading-snug text-slate-900 shadow-glow md:text-3xl">
+      <div className="shrink-0 px-4 pt-5 text-center">
+        <h2 className="mx-auto inline-block max-w-3xl rounded-2xl bg-white px-5 py-4 font-display text-lg font-extrabold leading-snug text-slate-900 shadow-glow sm:text-xl md:text-3xl">
           {question.body}
         </h2>
       </div>
@@ -122,8 +122,8 @@ export default function Quiz({
 
       {/* Alternativas */}
       {hasShownChoices && !isAnswerRevealed && !chosenChoice && (
-        <div className="flex flex-grow flex-col justify-end">
-          <div className="grid grid-cols-2 gap-3 p-4">
+        <div className="flex min-h-0 flex-grow flex-col justify-end">
+          <div className="grid grid-cols-2 gap-2.5 p-3 sm:gap-3 sm:p-4">
             {question.choices.map((choice, index) => (
               <button
                 key={choice.id}
@@ -177,7 +177,7 @@ export default function Quiz({
       )}
 
       {/* Rodapé */}
-      <div className="flex items-center justify-between px-5 py-4">
+      <div className="flex shrink-0 items-center justify-between px-4 py-3">
         <span className="rounded-full bg-white/10 px-4 py-1.5 font-display text-sm font-bold text-white/80">
           {question.order + 1} / {questionCount}
         </span>
