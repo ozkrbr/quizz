@@ -38,10 +38,10 @@
   /* Fundo de marca: gradiente animado + brilhos. Usado nas telas de jogo. */
   .app-bg {
     background:
-      radial-gradient(1200px 600px at 10% -10%, rgba(132, 61, 255, 0.35), transparent 60%),
-      radial-gradient(1000px 500px at 100% 0%, rgba(236, 72, 153, 0.28), transparent 55%),
-      radial-gradient(900px 600px at 50% 120%, rgba(56, 189, 248, 0.25), transparent 55%),
-      linear-gradient(180deg, #0b0620 0%, #140a2e 50%, #0b0620 100%);
+      radial-gradient(1200px 600px at 10% -10%, rgba(20, 168, 102, 0.38), transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, rgba(163, 230, 53, 0.20), transparent 55%),
+      radial-gradient(900px 600px at 50% 120%, rgba(45, 212, 191, 0.22), transparent 55%),
+      linear-gradient(180deg, #04140d 0%, #0a2417 50%, #04140d 100%);
     background-attachment: fixed;
   }
 
@@ -55,7 +55,7 @@
 
   /* Texto com gradiente da marca. */
   .text-gradient {
-    background: linear-gradient(90deg, #c4b5fd, #f0abfc, #93c5fd);
+    background: linear-gradient(90deg, #6ee7b7, #a7f3d0, #bef264);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -67,18 +67,18 @@
       px-7 py-3.5 font-bold text-white transition-all duration-150
       active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60;
     font-family: var(--font-outfit), system-ui, sans-serif;
-    background: linear-gradient(180deg, #9f75ff, #7916ff);
+    background: linear-gradient(180deg, #14a866, #096b41);
     box-shadow:
-      0 8px 0 0 #5a03d5,
-      0 18px 40px -10px rgba(124, 58, 237, 0.7);
+      0 8px 0 0 #06432b,
+      0 18px 40px -10px rgba(12, 138, 82, 0.7);
   }
   .btn-brand:hover:not(:disabled) {
-    filter: brightness(1.06);
+    filter: brightness(1.08);
   }
   .btn-brand:active:not(:disabled) {
     box-shadow:
-      0 3px 0 0 #5a03d5,
-      0 10px 24px -10px rgba(124, 58, 237, 0.7);
+      0 3px 0 0 #06432b,
+      0 10px 24px -10px rgba(12, 138, 82, 0.7);
   }
 
   /* Botão de alternativa com efeito 3D. */

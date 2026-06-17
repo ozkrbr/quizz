@@ -26,7 +26,7 @@ export function Brand({
       </span>
       <span className={`tracking-tight text-white ${text}`}>
         Quizz
-        <span className={`ml-0.5 inline-block rounded-full bg-fuchsia-400 ${dot}`} />
+        <span className={`ml-0.5 inline-block rounded-full bg-lime-300 ${dot}`} />
       </span>
     </div>
   )

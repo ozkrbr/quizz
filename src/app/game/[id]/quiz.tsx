@@ -103,7 +103,7 @@ export default function Quiz({
             }}
             isPlaying
             duration={TIME_TIL_CHOICE_REVEAL / 1000}
-            colors={['#9f75ff', '#9f75ff', '#9f75ff', '#9f75ff']}
+            colors={['#2fcf83', '#2fcf83', '#2fcf83', '#2fcf83']}
             trailColor={'rgba(255,255,255,0.12)' as ColorFormat}
             colorsTime={[7, 5, 2, 0]}
             size={140}

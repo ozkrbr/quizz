@@ -7,11 +7,11 @@ import { useQRCode } from 'next-qrcode'
 import { useEffect, useState } from 'react'
 
 const CHIP_COLORS = [
-  'from-fuchsia-500 to-brand-600',
-  'from-sky-500 to-indigo-600',
+  'from-emerald-400 to-brand-700',
+  'from-teal-400 to-cyan-700',
+  'from-lime-400 to-emerald-700',
   'from-amber-400 to-orange-600',
-  'from-emerald-400 to-teal-600',
-  'from-rose-500 to-pink-600',
+  'from-sky-500 to-teal-600',
 ]
 
 export default function Lobby({
