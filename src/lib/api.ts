@@ -70,6 +70,8 @@ export type QuizQuestionInput = {
 export type QuizSetInput = {
   name: string
   description?: string | null
+  answer_time?: number
+  auto_advance?: boolean
   questions: QuizQuestionInput[]
 }
 

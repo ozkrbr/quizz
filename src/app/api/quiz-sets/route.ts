@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server'
 import { withTransaction } from '@/lib/db'
-import { insertQuestions, listQuizSets, validateQuizInput } from '@/lib/quizzes'
+import {
+  answerTimeOf,
+  autoAdvanceOf,
+  insertQuestions,
+  listQuizSets,
+  validateQuizInput,
+} from '@/lib/quizzes'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,8 +23,14 @@ export async function POST(req: Request) {
 
   const created = await withTransaction(async (client) => {
     const { rows } = await client.query(
-      `insert into quiz_sets (name, description) values ($1, $2) returning *`,
-      [input.name.trim(), input.description?.trim() || null]
+      `insert into quiz_sets (name, description, answer_time, auto_advance)
+       values ($1, $2, $3, $4) returning *`,
+      [
+        input.name.trim(),
+        input.description?.trim() || null,
+        answerTimeOf(input),
+        autoAdvanceOf(input),
+      ]
     )
     const quizSet = rows[0]
     await insertQuestions(client, quizSet.id, input.questions)

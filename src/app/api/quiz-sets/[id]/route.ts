@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server'
 import { queryOne, withTransaction } from '@/lib/db'
-import { getQuizSet, insertQuestions, validateQuizInput } from '@/lib/quizzes'
+import {
+  answerTimeOf,
+  autoAdvanceOf,
+  getQuizSet,
+  insertQuestions,
+  validateQuizInput,
+} from '@/lib/quizzes'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,8 +35,16 @@ export async function PUT(
 
   const updated = await withTransaction(async (client) => {
     const { rows } = await client.query(
-      `update quiz_sets set name = $1, description = $2 where id = $3 returning *`,
-      [input.name.trim(), input.description?.trim() || null, params.id]
+      `update quiz_sets
+          set name = $1, description = $2, answer_time = $3, auto_advance = $4
+        where id = $5 returning *`,
+      [
+        input.name.trim(),
+        input.description?.trim() || null,
+        answerTimeOf(input),
+        autoAdvanceOf(input),
+        params.id,
+      ]
     )
     if (rows.length === 0) return null
 

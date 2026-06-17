@@ -10,11 +10,15 @@ export default function Quiz({
   questionCount: questionCount,
   gameId,
   participants,
+  answerTime,
+  autoAdvance,
 }: {
   question: Question
   questionCount: number
   gameId: string
   participants: Participant[]
+  answerTime: number
+  autoAdvance: boolean
 }) {
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false)
 
@@ -25,6 +29,9 @@ export default function Quiz({
   const answerStateRef = useRef<Answer[]>()
 
   answerStateRef.current = answers
+
+  // Garante um único avanço automático por pergunta.
+  const advancedRef = useRef(false)
 
   // Quem ainda não respondeu a pergunta atual.
   const answeredIds = new Set(answers.map((a) => a.participant_id))
@@ -55,6 +62,7 @@ export default function Quiz({
     setIsAnswerRevealed(false)
     setHasShownChoices(false)
     setAnswers([])
+    advancedRef.current = false
 
     setTimeout(() => {
       setHasShownChoices(true)
@@ -76,6 +84,16 @@ export default function Quiz({
     return unsubscribe
   }, [question.id])
 
+  // Modo automático: após revelar a resposta, mostra o resultado por alguns
+  // segundos e avança sozinho para a próxima pergunta.
+  useEffect(() => {
+    if (!autoAdvance || !isAnswerRevealed || advancedRef.current) return
+    advancedRef.current = true
+    const t = setTimeout(() => getNextQuestion(), 4000)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoAdvance, isAnswerRevealed])
+
   const countFor = (choiceId: string) =>
     answers.filter((a) => a.choice_id === choiceId).length
 
@@ -86,13 +104,20 @@ export default function Quiz({
         <span className="rounded-full bg-white/10 px-4 py-2 font-display text-sm font-bold text-white/80">
           Pergunta {question.order + 1} de {questionCount}
         </span>
-        {isAnswerRevealed && (
+        {isAnswerRevealed && !autoAdvance && (
           <button onClick={getNextQuestion} className="btn-brand py-2.5 text-base">
             {questionCount === question.order + 1 ? 'Ver placar' : 'Próxima'}
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={3}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </button>
+        )}
+        {isAnswerRevealed && autoAdvance && (
+          <span className="rounded-full bg-white/10 px-4 py-2 font-display text-sm font-bold text-white/60">
+            {questionCount === question.order + 1
+              ? 'Indo para o placar…'
+              : 'Próxima pergunta em instantes…'}
+          </span>
         )}
       </div>
 
@@ -113,9 +138,14 @@ export default function Quiz({
                   onTimeUp()
                 }}
                 isPlaying
-                duration={20}
+                duration={answerTime}
                 colors={['#26890c', '#d89e00', '#e21b3c', '#e21b3c']}
-                colorsTime={[20, 8, 3, 0]}
+                colorsTime={[
+                  answerTime,
+                  Math.round(answerTime * 0.4),
+                  Math.round(answerTime * 0.15),
+                  0,
+                ]}
                 trailColor={'rgba(255,255,255,0.12)' as ColorFormat}
                 size={130}
               >

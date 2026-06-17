@@ -26,11 +26,15 @@ function emptyQuestion(): QuestionForm {
 function fromQuizSet(quiz: QuizSet): {
   name: string
   description: string
+  answerTime: number
+  autoAdvance: boolean
   questions: QuestionForm[]
 } {
   return {
     name: quiz.name,
     description: quiz.description ?? '',
+    answerTime: quiz.answer_time ?? 30,
+    autoAdvance: quiz.auto_advance ?? false,
     questions: (quiz.questions ?? []).map((q) => ({
       body: q.body,
       image_url: q.image_url ?? '',
@@ -48,10 +52,18 @@ export default function QuizEditor({ initial }: { initial?: QuizSet }) {
 
   const seed = initial
     ? fromQuizSet(initial)
-    : { name: '', description: '', questions: [emptyQuestion()] }
+    : {
+        name: '',
+        description: '',
+        answerTime: 30,
+        autoAdvance: false,
+        questions: [emptyQuestion()],
+      }
 
   const [name, setName] = useState(seed.name)
   const [description, setDescription] = useState(seed.description)
+  const [answerTime, setAnswerTime] = useState(seed.answerTime)
+  const [autoAdvance, setAutoAdvance] = useState(seed.autoAdvance)
   const [questions, setQuestions] = useState<QuestionForm[]>(seed.questions)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -116,6 +128,8 @@ export default function QuizEditor({ initial }: { initial?: QuizSet }) {
     const payload: QuizSetInput = {
       name,
       description,
+      answer_time: answerTime,
+      auto_advance: autoAdvance,
       questions: questions.map((q) => ({
         body: q.body,
         image_url: q.image_url || null,
@@ -178,6 +192,65 @@ export default function QuizEditor({ initial }: { initial?: QuizSet }) {
             maxLength={200}
             className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-2.5 text-white outline-none transition focus:ring-2 focus:ring-brand-500/60"
           />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          {/* Tempo de resposta */}
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-white/70">
+              Tempo para responder (segundos)
+            </label>
+            <input
+              type="number"
+              min={5}
+              max={300}
+              value={answerTime}
+              onChange={(e) => setAnswerTime(Number(e.target.value))}
+              onBlur={() =>
+                setAnswerTime((t) =>
+                  Math.min(300, Math.max(5, Math.round(t) || 30))
+                )
+              }
+              className="w-full rounded-xl border border-white/15 bg-black/30 px-4 py-2.5 font-display text-lg font-bold text-white outline-none transition focus:ring-2 focus:ring-brand-500/60"
+            />
+            <p className="mt-1 text-xs text-white/40">Padrão: 30s (de 5 a 300).</p>
+          </div>
+
+          {/* Avanço para a próxima pergunta */}
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-white/70">
+              Avançar para a próxima pergunta
+            </label>
+            <div className="grid grid-cols-2 gap-1 rounded-xl border border-white/15 bg-black/30 p-1">
+              <button
+                type="button"
+                onClick={() => setAutoAdvance(false)}
+                className={`rounded-lg px-3 py-2 text-sm font-bold transition ${
+                  !autoAdvance
+                    ? 'bg-brand-500 text-white'
+                    : 'text-white/60 hover:text-white'
+                }`}
+              >
+                Manual
+              </button>
+              <button
+                type="button"
+                onClick={() => setAutoAdvance(true)}
+                className={`rounded-lg px-3 py-2 text-sm font-bold transition ${
+                  autoAdvance
+                    ? 'bg-brand-500 text-white'
+                    : 'text-white/60 hover:text-white'
+                }`}
+              >
+                Automático
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-white/40">
+              {autoAdvance
+                ? 'Avança sozinho quando todos responderem (ou o tempo acabar).'
+                : 'O apresentador clica em "Próxima" a cada pergunta.'}
+            </p>
+          </div>
         </div>
       </div>
 

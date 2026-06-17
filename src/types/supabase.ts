@@ -225,18 +225,24 @@ export type Database = {
       }
       quiz_sets: {
         Row: {
+          answer_time: number
+          auto_advance: boolean
           created_at: string
           description: string | null
           id: string
           name: string
         }
         Insert: {
+          answer_time?: number
+          auto_advance?: boolean
           created_at?: string
           description?: string | null
           id?: string
           name: string
         }
         Update: {
+          answer_time?: number
+          auto_advance?: boolean
           created_at?: string
           description?: string | null
           id?: string

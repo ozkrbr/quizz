@@ -1,4 +1,3 @@
-/** Time until the choices for the question are revealed in ms */
+/** Tempo até as alternativas serem liberadas, em ms. */
 export const TIME_TIL_CHOICE_REVEAL = 5000
-/** Time that the users have to answer a question in ms */
-export const QUESTION_ANSWER_TIME = 20000
+// O tempo de resposta agora é configurável por quiz (quiz_sets.answer_time).

@@ -1,4 +1,4 @@
-import { QUESTION_ANSWER_TIME, TIME_TIL_CHOICE_REVEAL } from '@/constants'
+import { TIME_TIL_CHOICE_REVEAL } from '@/constants'
 import { Choice, Question } from '@/types/types'
 import { submitAnswer } from '@/lib/api'
 import { AnswerShape, answerColor } from '@/components/AnswerShape'
@@ -11,12 +11,14 @@ export default function Quiz({
   participantId: playerId,
   gameId,
   isAnswerRevealed,
+  answerTime,
 }: {
   question: Question
   questionCount: number
   participantId: string
   gameId: string
   isAnswerRevealed: boolean
+  answerTime: number
 }) {
   const [chosenChoice, setChosenChoice] = useState<Choice | null>(null)
 
@@ -50,7 +52,7 @@ export default function Quiz({
         Math.round(
           Math.max(
             0,
-            Math.min((now - questionStartTime) / QUESTION_ANSWER_TIME, 1)
+            Math.min((now - questionStartTime) / (answerTime * 1000), 1)
           ) * 1000
         )
 

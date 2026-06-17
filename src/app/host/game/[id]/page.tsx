@@ -91,6 +91,8 @@ export default function Home({
           questionCount={quizSet!.questions!.length}
           gameId={gameId}
           participants={participants}
+          answerTime={quizSet!.answer_time ?? 30}
+          autoAdvance={quizSet!.auto_advance ?? false}
         ></Quiz>
       )}
       {currentScreen == AdminScreens.result && (

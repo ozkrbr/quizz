@@ -87,6 +87,10 @@ else
   log "Schema já existe — mantendo dados atuais."
 fi
 
+# Migrações idempotentes (novas colunas etc.) — rodam sempre, sem afetar dados.
+log "Aplicando migrações..."
+curl -fsSL "$RAW/db/migrate.sql" | docker exec -i "$PG_CONTAINER" psql -v ON_ERROR_STOP=1 -U "$PG_SUPERUSER" -d "$QUIZZ_DB"
+
 # ----------------------------------------------------------------------------
 # 4) Rede compartilhada entre app e Postgres
 #    (conecta o Postgres a uma rede dedicada sem mexer nos vínculos atuais)

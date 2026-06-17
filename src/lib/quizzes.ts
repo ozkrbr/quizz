@@ -12,7 +12,24 @@ export type QuestionInput = {
 export type QuizSetInput = {
   name: string
   description?: string | null
+  answer_time?: number
+  auto_advance?: boolean
   questions: QuestionInput[]
+}
+
+export const ANSWER_TIME_MIN = 5
+export const ANSWER_TIME_MAX = 300
+export const ANSWER_TIME_DEFAULT = 30
+
+/** Normaliza o tempo de resposta (segundos) para um inteiro dentro dos limites. */
+export function answerTimeOf(input: any): number {
+  const n = Math.round(Number(input?.answer_time))
+  if (!Number.isFinite(n)) return ANSWER_TIME_DEFAULT
+  return Math.min(ANSWER_TIME_MAX, Math.max(ANSWER_TIME_MIN, n))
+}
+
+export function autoAdvanceOf(input: any): boolean {
+  return !!input?.auto_advance
 }
 
 // Fragmento SQL que agrega perguntas + alternativas aninhadas, ordenadas.

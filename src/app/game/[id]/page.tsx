@@ -35,6 +35,7 @@ export default function Home({
   const [currentQuestionSequence, setCurrentQuestionSequence] = useState(0)
   const [isAnswerRevealed, setIsAnswerRevealed] = useState(false)
   const [removed, setRemoved] = useState(false)
+  const [answerTime, setAnswerTime] = useState(30)
 
   const getGame = async () => {
     const game = await fetchGame(gameId).catch(() => null)
@@ -52,6 +53,7 @@ export default function Home({
     try {
       const quizSet = await fetchQuizSetForGame(gameId)
       setQuestions(quizSet.questions)
+      setAnswerTime(quizSet.answer_time ?? 30)
     } catch (e) {
       getQuestions()
     }
@@ -120,6 +122,7 @@ export default function Home({
           participantId={participant!.id}
           gameId={gameId}
           isAnswerRevealed={isAnswerRevealed}
+          answerTime={answerTime}
         ></Quiz>
       )}
       {currentScreen == Screens.results && (

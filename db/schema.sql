@@ -10,7 +10,9 @@ create table if not exists public.quiz_sets (
     id uuid default gen_random_uuid() not null primary key,
     created_at timestamp with time zone default now() not null,
     name text not null,
-    description text
+    description text,
+    answer_time smallint not null default 30,   -- segundos para responder
+    auto_advance boolean not null default false  -- avança sozinho quando todos respondem
 );
 
 create table if not exists public.questions (
