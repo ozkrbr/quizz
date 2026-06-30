@@ -125,7 +125,7 @@ export default function Quiz({
       {/* Alternativas */}
       {hasShownChoices && !isAnswerRevealed && !chosenChoice && (
         <div className="flex min-h-0 flex-grow flex-col justify-end">
-          <div className="grid grid-cols-2 gap-2.5 p-3 sm:gap-3 sm:p-4">
+          <div className="mx-auto grid w-full max-w-lg grid-cols-1 gap-2.5 p-3 sm:gap-3 sm:p-4">
             {question.choices.map((choice, index) => (
               <button
                 key={choice.id}
