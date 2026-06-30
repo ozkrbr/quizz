@@ -134,8 +134,8 @@ export default function Quiz({
                 className={`answer-btn animate-fade-up ${answerColor(index).bg}`}
                 style={{ animationDelay: `${index * 60}ms` }}
               >
-                <AnswerShape index={index} className="h-7 w-7 shrink-0" />
-                <span className="leading-tight">{choice.body}</span>
+                <AnswerShape index={index} className="h-6 w-6 shrink-0 sm:h-7 sm:w-7" />
+                <span className="answer-label">{choice.body}</span>
               </button>
             ))}
           </div>

@@ -81,13 +81,33 @@
       0 10px 24px -10px rgba(12, 138, 82, 0.7);
   }
 
-  /* Botão de alternativa com efeito 3D. */
+  /* Botão de alternativa com efeito 3D.
+     Fonte fluida com clamp(): escala suavemente conforme a largura do viewport
+     sem depender só de breakpoints — texto longo (ex.: "Microsoft SQL Server")
+     cabe melhor em telas pequenas. */
   .answer-btn {
-    @apply relative flex w-full items-center gap-3 rounded-2xl px-4 py-4 text-left
-      text-lg font-bold text-white transition-all duration-100
-      sm:gap-4 sm:px-5 sm:text-xl md:text-2xl;
+    @apply relative flex w-full items-center gap-2 rounded-2xl px-3 py-3 text-left
+      font-bold text-white transition-all duration-100
+      sm:gap-3 sm:px-4 sm:py-4;
     font-family: var(--font-outfit), system-ui, sans-serif;
+    /* min: 14px @ ~320px ; preferido: ~4.2vw ; max: 22px @ ~525px+ */
+    font-size: clamp(0.875rem, 4.2vw, 1.375rem);
+    line-height: 1.15;
     box-shadow: 0 6px 0 0 rgba(0, 0, 0, 0.28);
+  }
+  /* O texto pode encolher e quebrar palavras longas; hifenização ajuda PT-BR. */
+  .answer-btn > .answer-label {
+    @apply min-w-0 flex-1;
+    overflow-wrap: anywhere;
+    hyphens: auto;
+    text-wrap: pretty;
+  }
+  /* A partir de telas médias, volta a tipografia generosa. */
+  @media (min-width: 768px) {
+    .answer-btn {
+      font-size: 1.5rem;
+      line-height: 1.2;
+    }
   }
   .answer-btn:not(:disabled):hover {
     filter: brightness(1.07);
