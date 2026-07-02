@@ -18,13 +18,13 @@ export function Brand({
 
   return (
     <div className={`flex items-center gap-2 font-display font-extrabold ${className}`}>
-      <span className={`flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-brand-400 to-brand-700 shadow-glow ${logoBox}`}>
+      <span className={`flex shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-700 p-1 shadow-glow ${logoBox}`}>
         <Image
           src="/terrena.avif"
           alt="Terrena"
           width={logoPx}
           height={logoPx}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain"
           priority
         />
       </span>
