@@ -18,7 +18,7 @@ export function Brand({
 
   return (
     <div className={`flex items-center gap-2 font-display font-extrabold ${className}`}>
-      <span className={`flex shrink-0 items-center justify-center aspect-[167/32] rounded-xl bg-gradient-to-br from-brand-400 to-brand-700 shadow-glow ${logoBox}`}>
+      <span className={`flex shrink-0 items-center justify-center aspect-[167/32] rounded-xl bg-white px-1.5 py-1 shadow-glow ${logoBox}`}>
         <Image
           src="/terrena.avif"
           alt="Terrena"
