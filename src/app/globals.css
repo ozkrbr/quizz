@@ -38,10 +38,10 @@
   /* Fundo de marca: gradiente animado + brilhos. Usado nas telas de jogo. */
   .app-bg {
     background:
-      radial-gradient(1200px 600px at 10% -10%, rgba(20, 168, 102, 0.38), transparent 60%),
-      radial-gradient(1000px 500px at 100% 0%, rgba(163, 230, 53, 0.20), transparent 55%),
-      radial-gradient(900px 600px at 50% 120%, rgba(45, 212, 191, 0.22), transparent 55%),
-      linear-gradient(180deg, #04140d 0%, #0a2417 50%, #04140d 100%);
+      radial-gradient(1200px 600px at 10% -10%, rgba(217, 122, 69, 0.38), transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, rgba(192, 95, 46, 0.20), transparent 55%),
+      radial-gradient(900px 600px at 50% 120%, rgba(125, 58, 28, 0.28), transparent 55%),
+      linear-gradient(180deg, #1a100a 0%, #2b1710 50%, #1a100a 100%);
     background-attachment: fixed;
   }
 
@@ -55,7 +55,7 @@
 
   /* Texto com gradiente da marca. */
   .text-gradient {
-    background: linear-gradient(90deg, #6ee7b7, #a7f3d0, #bef264);
+    background: linear-gradient(90deg, #fbe2d2, #e89b6b, #c05f2e);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -67,18 +67,18 @@
       px-7 py-3.5 font-bold text-white transition-all duration-150
       active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60;
     font-family: var(--font-outfit), system-ui, sans-serif;
-    background: linear-gradient(180deg, #14a866, #096b41);
+    background: linear-gradient(180deg, #d97a45, #7d3a1c);
     box-shadow:
-      0 8px 0 0 #06432b,
-      0 18px 40px -10px rgba(12, 138, 82, 0.7);
+      0 8px 0 0 #472313,
+      0 18px 40px -10px rgba(192, 95, 46, 0.7);
   }
   .btn-brand:hover:not(:disabled) {
     filter: brightness(1.08);
   }
   .btn-brand:active:not(:disabled) {
     box-shadow:
-      0 3px 0 0 #06432b,
-      0 10px 24px -10px rgba(12, 138, 82, 0.7);
+      0 3px 0 0 #472313,
+      0 10px 24px -10px rgba(192, 95, 46, 0.7);
   }
 
   /* Botão de alternativa com efeito 3D.

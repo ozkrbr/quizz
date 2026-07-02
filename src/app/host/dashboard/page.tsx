@@ -52,12 +52,12 @@ export default function Home() {
   }
 
   const gradients = [
-    'from-emerald-400 to-brand-700',
-    'from-teal-400 to-cyan-700',
-    'from-lime-400 to-emerald-700',
+    'from-amber-400 to-brand-700',
+    'from-orange-400 to-red-700',
+    'from-yellow-400 to-brand-700',
     'from-amber-400 to-orange-600',
-    'from-sky-500 to-teal-600',
-    'from-green-400 to-brand-800',
+    'from-rose-500 to-brand-800',
+    'from-orange-400 to-brand-900',
   ]
 
   return (

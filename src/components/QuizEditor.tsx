@@ -392,7 +392,7 @@ export default function QuizEditor({ initial }: { initial?: QuizSet }) {
       </button>
 
       {/* Barra de ações fixa */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-[#04140d]/85 backdrop-blur-md">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-[#1a100a]/85 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
           <p className="text-sm text-red-300">{error}</p>
           <div className="flex items-center gap-3">

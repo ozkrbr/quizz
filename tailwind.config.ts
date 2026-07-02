@@ -14,19 +14,19 @@ const config: Config = {
         display: ['var(--font-outfit)', 'var(--font-inter)', 'sans-serif'],
       },
       colors: {
-        // Cor de marca (verde escuro / esmeralda — combina com o agro).
+        // Cor de marca (marrom / terracota — combina com o agro).
         brand: {
-          50: '#ecfdf3',
-          100: '#d1fae0',
-          200: '#a7f3c9',
-          300: '#6ee7ad',
-          400: '#2fcf83',
-          500: '#14a866',
-          600: '#0c8a52',
-          700: '#096b41',
-          800: '#085434',
-          900: '#06432b',
-          950: '#022c1a',
+          50: '#fdf3ee',
+          100: '#fbe2d2',
+          200: '#f4c19f',
+          300: '#e89b6b',
+          400: '#d97a45',
+          500: '#c05f2e',
+          600: '#a04a22',
+          700: '#7d3a1c',
+          800: '#5f2d18',
+          900: '#472313',
+          950: '#2b150c',
         },
         // As 4 cores clássicas de alternativa (estilo Kahoot).
         answer: {
@@ -37,7 +37,7 @@ const config: Config = {
         },
       },
       boxShadow: {
-        glow: '0 0 0 1px rgba(255,255,255,0.08), 0 20px 60px -15px rgba(16,168,104,0.5)',
+        glow: '0 0 0 1px rgba(255,255,255,0.08), 0 20px 60px -15px rgba(192,95,46,0.5)',
         'answer': '0 6px 0 0 rgba(0,0,0,0.25)',
         'answer-press': '0 2px 0 0 rgba(0,0,0,0.25)',
       },

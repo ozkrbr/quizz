@@ -104,7 +104,7 @@ export default function PartidasAnteriores() {
               href={`/host/dashboard/partidas/${g.id}`}
               className="glass group flex items-center gap-4 rounded-2xl p-4 transition hover:-translate-y-0.5 hover:shadow-glow"
             >
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-brand-700 font-display text-xl font-extrabold text-white">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-brand-700 font-display text-xl font-extrabold text-white">
                 {g.quiz_name.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0 flex-grow">
